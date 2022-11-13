@@ -9,7 +9,7 @@
           class="col-7 q-pr-sm"
           filled
           bg-color="white"
-          v-model="inputText"
+          v-model="currentName"
           placeholder="Hinzufügen"
           dense
         />
@@ -18,7 +18,7 @@
           filled
           number
           bg-color="white"
-          v-model="inputNumber"
+          v-model="currentNumber"
           placeholder="0"
           dense
         />
@@ -27,7 +27,7 @@
           filled
           dense
           bg-color="white"
-          v-model="selectSize"
+          v-model="currentSize"
           :options="sizeOptions"
           label="g"
         />
@@ -37,6 +37,7 @@
           text-color="grey-8"
           class="col-1"
           icon="add"
+          @click="addItem"
         />
       </div>
       <q-list class="bg-white" separator bordered>
@@ -52,7 +53,15 @@
             <q-icon name="fastfood" color="primary" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>{{ item.title }}</q-item-label>
+            <div class="item__details">
+              <div class="details__core">
+                <q-item-label>{{ item.title }}</q-item-label>
+                <q-item-label class="small-label">{{ item.note }}</q-item-label>
+              </div>
+              <div class="details__size">
+                <q-item-label>{{ item.amount }}{{ item.size }}</q-item-label>
+              </div>
+            </div>
           </q-item-section>
           <q-separator vertical inset />
           <q-item-section
@@ -80,10 +89,23 @@
             <q-icon name="fastfood" color="primary" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>{{ item.title }}</q-item-label>
+            <div class="item__details">
+              <div class="details__core">
+                <q-item-label>{{ item.title }}</q-item-label>
+                <q-item-label class="small-label">{{ item.note }}</q-item-label>
+              </div>
+              <div class="details__size">
+                <q-item-label>{{ item.amount }}{{ item.size }}</q-item-label>
+              </div>
+            </div>
           </q-item-section>
-          <q-item-section v-if="!item.done" side>
-            <q-btn flat round dense color="primary" icon="edit" />
+          <q-separator vertical inset />
+          <q-item-section
+            v-if="!item.done"
+            side
+            @click.stop="editItem(item, idx)"
+          >
+            <q-btn flat icon="edit" size="md" />
           </q-item-section>
         </q-item>
       </q-list>
@@ -100,11 +122,11 @@ import { ref } from "vue";
 /**
  * list
  */
-const inputText = ref("");
-const inputNumber = ref(0);
-const selectSize = ref("");
+const currentName = ref("");
+const currentNumber = ref(null);
+const currentSize = ref(null);
 
-const sizeOptions = ["g", "ml", "l", "kg", "Pkg", "Stk"];
+const sizeOptions = ["g", "kg", "ml", "l", , "Pkg", "Stk"];
 
 const shoppingList = ref([
   {
@@ -122,7 +144,7 @@ const shoppingList = ref([
   {
     title: "Joghurt",
     amount: "500g",
-    note: "",
+    note: "griechischer 10%",
     done: false,
   },
 ]);
@@ -142,5 +164,20 @@ const changeList = (item, idx) => {
 
 const editItem = (item, idx) => {
   console.log(item, idx);
+};
+
+const addItem = () => {
+  if (currentName.value !== "") {
+    shoppingList.value.push({
+      title: currentName.value,
+      amount: currentNumber.value,
+      size: currentSize.value,
+      note: "",
+      done: false,
+    });
+  }
+  currentName.value = "";
+  currentNumber.value = null;
+  currentSize.value = "";
 };
 </script>
