@@ -7,7 +7,7 @@
       <div class="recipes-body q-pa-md">
         <div v-for="recipe of recipesArray" :key="recipe.name">
           <q-card class="recipe-card">
-            <router-link :to="'/rezepte/info'">
+            <router-link :to="`/rezepteDetail/${recipe.id}`">
               <q-img src="https://cdn.quasar.dev/img/chicken-salad.jpg">
                 <div class="text-h6 absolute-bottom text-center">
                   {{ recipe.name }}
@@ -55,7 +55,7 @@
                 </q-popup-proxy>
               </q-btn>
               <q-btn size="sm" flat round icon="receipt_long" class="q-mr-sm" />
-              <router-link :to="'/rezepte/info'">
+              <router-link :to="`/rezepteDetail/${recipe.id}`">
                 <q-btn size="sm" round icon="menu_book" color="primary" />
               </router-link>
             </q-card-actions>

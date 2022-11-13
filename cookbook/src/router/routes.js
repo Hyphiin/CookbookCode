@@ -7,12 +7,10 @@ const routes = [
       {
         path: "/rezepte",
         component: () => import("src/pages/Rezepte/RezepteView.vue"),
-        children: [
-          {
-            path: "/rezepte/info",
-            component: () => import("src/pages/Rezepte/RezeptInfoView.vue"),
-          },
-        ],
+      },
+      {
+        path: "/rezepteDetail/:id",
+        component: () => import("src/pages/Rezepte/RezeptInfoView.vue"),
       },
       {
         path: "/list",

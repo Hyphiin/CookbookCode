@@ -12,6 +12,7 @@
           v-model="currentName"
           placeholder="Hinzufügen"
           dense
+          @keydown.enter.prevent="addItem"
         />
         <q-input
           class="col-2 q-pr-sm"
@@ -21,6 +22,7 @@
           v-model="currentNumber"
           placeholder="0"
           dense
+          @keydown.enter.prevent="addItem"
         />
         <q-select
           class="col-2 q-pr-sm"
@@ -30,6 +32,7 @@
           v-model="currentSize"
           :options="sizeOptions"
           label="g"
+          @keydown.enter.prevent="addItem"
         />
         <q-btn
           dense
@@ -103,7 +106,7 @@
           <q-item-section
             v-if="!item.done"
             side
-            @click.stop="editItem(item, idx)"
+            @click.stop="editItemFunction(item, idx)"
           >
             <q-btn flat icon="edit" size="md" />
           </q-item-section>
@@ -112,6 +115,27 @@
       <q-page-sticky position="bottom-right" :offset="[18, 18]">
         <q-btn fab icon="add" color="secondary" />
       </q-page-sticky>
+      <q-dialog v-model="editItem" persistent>
+        <q-card style="min-width: 350px">
+          <q-card-section>
+            <div class="text-h6">Your address</div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-none">
+            <q-input
+              dense
+              v-model="address"
+              autofocus
+              @keyup.enter="editItem = false"
+            />
+          </q-card-section>
+
+          <q-card-actions align="right" class="text-primary">
+            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn flat label="Add address" v-close-popup />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </page-body>
   </page-view>
 </template>
@@ -165,7 +189,9 @@ const changeList = (item, idx) => {
   }
 };
 
-const editItem = (item, idx) => {
+const editItem = ref(false);
+const editItemFunction = (item, idx) => {
+  editItem.value = true;
   console.log(item, idx);
 };
 
