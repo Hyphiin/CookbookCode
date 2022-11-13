@@ -59,7 +59,7 @@
                 <q-item-label class="small-label">{{ item.note }}</q-item-label>
               </div>
               <div class="details__size">
-                <q-item-label>{{ item.amount }}{{ item.size }}</q-item-label>
+                <q-item-label>{{ item.amount }} {{ item.size }}</q-item-label>
               </div>
             </div>
           </q-item-section>
@@ -80,7 +80,7 @@
         <q-item
           v-for="(item, idx) in deletedList"
           :key="idx"
-          :class="{ 'done bg-orange-1': item.done }"
+          :class="{ 'done bg-green-1': item.done }"
           @click="changeList(item, idx)"
           clickable
           v-ripple
@@ -95,7 +95,7 @@
                 <q-item-label class="small-label">{{ item.note }}</q-item-label>
               </div>
               <div class="details__size">
-                <q-item-label>{{ item.amount }}{{ item.size }}</q-item-label>
+                <q-item-label>{{ item.amount }} {{ item.size }}</q-item-label>
               </div>
             </div>
           </q-item-section>
@@ -131,19 +131,22 @@ const sizeOptions = ["g", "kg", "ml", "l", , "Pkg", "Stk"];
 const shoppingList = ref([
   {
     title: "Bananen",
-    amount: "5 Stk",
+    amount: "5",
+    size: "Stk",
     note: "",
     done: false,
   },
   {
     title: "Klopapier",
-    amount: "1 Pkg",
+    amount: "1",
+    size: "Pkg",
     note: "4 lagig",
     done: false,
   },
   {
     title: "Joghurt",
-    amount: "500g",
+    amount: "500",
+    size: "g",
     note: "griechischer 10%",
     done: false,
   },
@@ -168,13 +171,29 @@ const editItem = (item, idx) => {
 
 const addItem = () => {
   if (currentName.value !== "") {
-    shoppingList.value.push({
-      title: currentName.value,
-      amount: currentNumber.value,
-      size: currentSize.value,
-      note: "",
-      done: false,
-    });
+    if (currentName.value.includes(" ")) {
+      let tempName = [];
+      tempName = currentName.value.split(" ");
+      let notesString = "";
+      for (let i = 1; i < tempName.length; i++) {
+        notesString += tempName[i];
+      }
+      shoppingList.value.push({
+        title: tempName[0],
+        amount: currentNumber.value,
+        size: currentSize.value,
+        note: notesString,
+        done: false,
+      });
+    } else {
+      shoppingList.value.push({
+        title: currentName.value,
+        amount: currentNumber.value,
+        size: currentSize.value,
+        note: "",
+        done: false,
+      });
+    }
   }
   currentName.value = "";
   currentNumber.value = null;
