@@ -13,6 +13,10 @@ const routes = [
         component: () => import("src/pages/Rezepte/RezeptInfoView.vue"),
       },
       {
+        path: "/addRezept",
+        component: () => import("src/pages/Rezepte/AddRezeptePage.vue"),
+      },
+      {
         path: "/list",
         component: () => import("src/pages/ShoppingList/ShoppingListView.vue"),
       },

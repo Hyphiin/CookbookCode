@@ -61,6 +61,9 @@
             </q-card-actions>
           </q-card>
         </div>
+        <router-link :to="`/addRezept`">
+          <q-btn size="lg" round icon="add" color="primary" />
+        </router-link>
       </div>
     </page-body>
   </page-view>
