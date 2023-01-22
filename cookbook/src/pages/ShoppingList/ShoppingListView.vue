@@ -45,10 +45,9 @@
       </div>
       <q-list class="bg-white" separator bordered>
         <q-item
-          v-for="(item, idx) in shoppingList"
+          v-for="(item, idx) in shoppingListStore.shoppingList"
           :key="idx"
           :class="{ 'done bg-orange-1': item.done }"
-          @click="changeList(item, idx)"
           clickable
           v-ripple
         >
@@ -84,7 +83,6 @@
           v-for="(item, idx) in deletedList"
           :key="idx"
           :class="{ 'done bg-green-1': item.done }"
-          @click="changeList(item, idx)"
           clickable
           v-ripple
         >
@@ -141,7 +139,16 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useStoreShoppingList } from "src/stores/storeShoppingList";
+/**
+ * store
+ */
+const shoppingListStore = useStoreShoppingList();
+
+onMounted(() => {
+  shoppingListStore.getList();
+});
 
 /**
  * list
@@ -152,42 +159,20 @@ const currentSize = ref(null);
 
 const sizeOptions = ["g", "kg", "ml", "l", , "Pkg", "Stk"];
 
-const shoppingList = ref([
-  {
-    title: "Bananen",
-    amount: "5",
-    size: "Stk",
-    note: "",
-    done: false,
-  },
-  {
-    title: "Klopapier",
-    amount: "1",
-    size: "Pkg",
-    note: "4 lagig",
-    done: false,
-  },
-  {
-    title: "Joghurt",
-    amount: "500",
-    size: "g",
-    note: "griechischer 10%",
-    done: false,
-  },
-]);
+// const shoppingList = ref([]);
 
 const deletedList = ref([]);
 
-const changeList = (item, idx) => {
-  item.done = !item.done;
-  if (item.done) {
-    deletedList.value.push(item);
-    shoppingList.value.splice(idx, 1);
-  } else {
-    shoppingList.value.push(item);
-    deletedList.value.splice(idx, 1);
-  }
-};
+// const changeList = (item, idx) => {
+//   item.done = !item.done;
+//   if (item.done) {
+//     deletedList.value.push(item);
+//     shoppingList.value.splice(idx, 1);
+//   } else {
+//     shoppingList.value.push(item);
+//     deletedList.value.splice(idx, 1);
+//   }
+// };
 
 const editItem = ref(false);
 const editItemFunction = (item, idx) => {
@@ -204,17 +189,31 @@ const addItem = () => {
       for (let i = 1; i < tempName.length; i++) {
         notesString += tempName[i];
       }
-      shoppingList.value.push({
+      // shoppingList.value.push({
+      //   title: tempName[0],
+      //   amount: currentNumber.value,
+      //   size: currentSize.value,
+      //   note: notesString,
+      //   done: false,
+      // });
+      shoppingListStore.addItem({
         title: tempName[0],
-        amount: currentNumber.value,
+        amount: parseInt(currentNumber.value),
         size: currentSize.value,
         note: notesString,
         done: false,
       });
     } else {
-      shoppingList.value.push({
+      // shoppingList.value.push({
+      //   title: currentName.value,
+      //   amount: currentNumber.value,
+      //   size: currentSize.value,
+      //   note: "",
+      //   done: false,
+      // });
+      shoppingListStore.addItem({
         title: currentName.value,
-        amount: currentNumber.value,
+        amount: parseInt(currentNumber.value),
         size: currentSize.value,
         note: "",
         done: false,
