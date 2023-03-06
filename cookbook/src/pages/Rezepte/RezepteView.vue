@@ -5,22 +5,24 @@
     </page-header>
     <page-body>
       <div class="recipes-body q-pa-md">
-        <div v-for="recipe of recipesArray" :key="recipe.name">
+        <div v-for="recipe of recipeStore.recipes" :key="recipe.title">
           <q-card class="recipe-card">
             <router-link :to="`/rezepteDetail/${recipe.id}`">
               <q-img src="https://cdn.quasar.dev/img/chicken-salad.jpg">
                 <div class="text-h6 absolute-bottom text-center">
-                  {{ recipe.name }}
+                  {{ recipe.title }}
                 </div>
               </q-img>
             </router-link>
 
             <q-card-section>
               <div class="row no-wrap">
-                <div class="col text-grey ellipsis">
-                  <q-rating v-model="ratingModel" size="1.5em" readonly />
-                  <q-icon name="hourglass_top" />
-                  {{ recipe.time }}
+                <div class="col text-grey ellipsis flex justify-between">
+                  <q-rating v-model="ratingModel" size="1.2em" readonly />
+                  <div>
+                    <q-icon name="hourglass_top" />
+                    {{ recipe.prepTime }} min
+                  </div>
                 </div>
               </div>
             </q-card-section>
@@ -70,12 +72,14 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { useStoreRecipes } from "src/stores/storeRecipes";
+import { ref, onMounted } from "vue";
 
-const recipesArray = ref([
-  { id: 1, name: "Spaghetti Carbonara", time: "30min" },
-  { id: 2, name: "Käsebrot", time: "5min" },
-]);
+/**
+ * store
+ */
+const recipeStore = useStoreRecipes();
+
 const date = ref("2019/03/01");
 const proxyDate = ref("2019/03/01");
 

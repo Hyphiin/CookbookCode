@@ -2,10 +2,19 @@
   <router-view />
 </template>
 
-<script>
-import { defineComponent } from 'vue'
+<script setup>
+/**
+ * imports
+ */
+import { useStoreRecipes } from "src/stores/storeRecipes";
+import { onMounted } from "vue";
 
-export default defineComponent({
-  name: 'App'
-})
+/**
+ * store
+ */
+const recipeStore = useStoreRecipes();
+
+onMounted(() => {
+  recipeStore.getRecipes();
+});
 </script>
