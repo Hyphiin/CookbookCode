@@ -98,13 +98,23 @@
             error-message="Bitte ausfüllen"
             style="min-width: 470px"
           />
-          <q-btn
-            label=""
-            icon="add"
-            color="primary"
-            @click="addStep"
-            style="max-height: 56px"
-          />
+          <div class="flex column">
+            <q-btn
+              label=""
+              icon="add"
+              color="primary"
+              @click="addStep"
+              style="height: 56px"
+            />
+            <q-btn
+              label=""
+              :icon="recording === false ? 'mic' : 'mic_off'"
+              color="secondary"
+              class="q-mt-lg"
+              @click="toggleRecording"
+              style="height: 56px"
+            />
+          </div>
         </div>
         <p class="text-subtitle1 q-mt-lg">Schritte:</p>
         <div
@@ -145,7 +155,7 @@
 /**
  * imports
  */
-import { ref } from "vue";
+import { ref, onUnmounted } from "vue";
 import { Notify } from "quasar";
 import { useRouter } from "vue-router";
 import { useStoreRecipes } from "src/stores/storeRecipes";
@@ -257,4 +267,42 @@ const onReset = () => {
   title.value = null;
   servings.value = null;
 };
+
+/**
+ * recording
+ */
+
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+
+let recognition = new SpeechRecognition();
+recognition.continuous = true;
+recognition.interimResults = true;
+
+const recording = ref(false);
+const results = ref(null);
+
+function toggleRecording() {
+  if (recording.value) {
+    recognition.stop();
+    recording.value = false;
+  } else {
+    recognition.start();
+    recording.value = true;
+  }
+}
+
+function onSpeak(e) {
+  if (e.results[e.results.length - 1].isFinal === true) {
+    newStep.value =
+      newStep.value + e.results[e.results.length - 1][0].transcript;
+    newStep.value =
+      newStep.value.charAt(0).toUpperCase() + newStep.value.slice(1);
+  }
+}
+recognition.addEventListener("result", onSpeak);
+
+onUnmounted(() => {
+  recognition.removeEventListener("result", () => {});
+  recognition.stop();
+});
 </script>
