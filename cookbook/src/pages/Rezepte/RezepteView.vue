@@ -56,7 +56,14 @@
                   </q-date>
                 </q-popup-proxy>
               </q-btn>
-              <q-btn size="sm" flat round icon="receipt_long" class="q-mr-sm" />
+              <q-btn
+                size="sm"
+                flat
+                round
+                icon="receipt_long"
+                class="q-mr-sm"
+                @click="addIngredients(recipe)"
+              />
               <router-link :to="`/rezepteDetail/${recipe.id}`">
                 <q-btn size="sm" round icon="menu_book" color="primary" />
               </router-link>
@@ -73,12 +80,14 @@
 
 <script setup>
 import { useStoreRecipes } from "src/stores/storeRecipes";
+import { useStoreShoppingList } from "src/stores/storeShoppingList";
 import { ref, onMounted } from "vue";
 
 /**
  * store
  */
 const recipeStore = useStoreRecipes();
+const shoppingListStore = useStoreShoppingList();
 
 const date = ref("2019/03/01");
 const proxyDate = ref("2019/03/01");
@@ -91,5 +100,18 @@ const updateProxy = () => {
 
 const save = () => {
   date.value = proxyDate.value;
+};
+
+const addIngredients = (recipe) => {
+  recipe.ingredients.forEach((ingredient) => {
+    console.log(ingredient);
+    shoppingListStore.addItem({
+      title: ingredient.name,
+      amount: ingredient.number,
+      size: ingredient.numberType,
+      note: "",
+      done: false,
+    });
+  });
 };
 </script>

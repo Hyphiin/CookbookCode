@@ -39,7 +39,7 @@ export const useStoreShoppingList = defineStore("Einkaufsliste", () => {
         };
         tempList.push(listItem);
       });
-      console.log(tempList);
+      console.log("STORE: ", tempList);
       shoppingList.value = tempList;
     });
   };

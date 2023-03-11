@@ -20,7 +20,7 @@
           number
           bg-color="white"
           v-model="currentNumber"
-          placeholder="0"
+          placeholder=""
           dense
           @keydown.enter.prevent="addItem"
         />
@@ -31,7 +31,7 @@
           bg-color="white"
           v-model="currentSize"
           :options="sizeOptions"
-          label="g"
+          placeholder=""
           @keydown.enter.prevent="addItem"
         />
         <q-btn
@@ -45,11 +45,12 @@
       </div>
       <q-list class="bg-white" separator bordered>
         <q-item
-          v-for="(item, idx) in shoppingListStore.shoppingList"
+          v-for="(item, idx) in shoppingList"
           :key="idx"
           :class="{ 'done bg-orange-1': item.done }"
           clickable
           v-ripple
+          @click="changeList(item)"
         >
           <q-item-section avatar>
             <q-icon name="fastfood" color="primary" />
@@ -66,11 +67,7 @@
             </div>
           </q-item-section>
           <q-separator vertical inset />
-          <q-item-section
-            v-if="!item.done"
-            side
-            @click.stop="editItem(item, idx)"
-          >
+          <q-item-section v-if="!item.done" side @click.stop="editItem(item)">
             <q-btn flat icon="edit" size="md" />
           </q-item-section>
         </q-item>
@@ -85,6 +82,7 @@
           :class="{ 'done bg-green-1': item.done }"
           clickable
           v-ripple
+          @click="changeList(item, idx)"
         >
           <q-item-section avatar>
             <q-icon name="fastfood" color="primary" />
@@ -139,7 +137,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useStoreShoppingList } from "src/stores/storeShoppingList";
 /**
  * store
@@ -150,6 +148,22 @@ onMounted(() => {
   shoppingListStore.getList();
 });
 
+watch(
+  () => shoppingListStore.shoppingList,
+  (newValue) => {
+    shoppingList.value = [];
+    deletedList.value = [];
+    newValue.forEach((item) => {
+      console.log(item);
+      if (item.done === true) {
+        deletedList.value.unshift(item);
+      } else {
+        shoppingList.value.push(item);
+      }
+    });
+  }
+);
+
 /**
  * list
  */
@@ -159,20 +173,12 @@ const currentSize = ref(null);
 
 const sizeOptions = ["g", "kg", "ml", "l", , "Pkg", "Stk"];
 
-// const shoppingList = ref([]);
-
+const shoppingList = ref([]);
 const deletedList = ref([]);
 
-// const changeList = (item, idx) => {
-//   item.done = !item.done;
-//   if (item.done) {
-//     deletedList.value.push(item);
-//     shoppingList.value.splice(idx, 1);
-//   } else {
-//     shoppingList.value.push(item);
-//     deletedList.value.splice(idx, 1);
-//   }
-// };
+const changeList = (item) => {
+  shoppingListStore.setItemDone(item.id, !item.done);
+};
 
 const editItem = ref(false);
 const editItemFunction = (item, idx) => {
@@ -189,13 +195,6 @@ const addItem = () => {
       for (let i = 1; i < tempName.length; i++) {
         notesString += tempName[i];
       }
-      // shoppingList.value.push({
-      //   title: tempName[0],
-      //   amount: currentNumber.value,
-      //   size: currentSize.value,
-      //   note: notesString,
-      //   done: false,
-      // });
       shoppingListStore.addItem({
         title: tempName[0],
         amount: parseInt(currentNumber.value),
@@ -204,13 +203,6 @@ const addItem = () => {
         done: false,
       });
     } else {
-      // shoppingList.value.push({
-      //   title: currentName.value,
-      //   amount: currentNumber.value,
-      //   size: currentSize.value,
-      //   note: "",
-      //   done: false,
-      // });
       shoppingListStore.addItem({
         title: currentName.value,
         amount: parseInt(currentNumber.value),

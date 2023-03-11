@@ -7,10 +7,10 @@
     </page-header>
     <page-body>
       <div class="content">
-        <div class="content-top q-pa-md">
+        <div v-if="recipe !== undefined" class="content-top q-pa-md">
           <q-img class="" src="../../assets/Pizza.jpg" />
           <h5 class="title">{{ recipe.title }}</h5>
-          <div class="flex column">
+          <div class="flex row justify-between">
             <div class="flex items-center q-pb-md">
               <q-chip
                 color="secondary"
@@ -21,12 +21,8 @@
               >
             </div>
             <div class="flex items-center q-pb-md">
-              <q-chip
-                color="secondary"
-                square
-                icon="schedule"
-                class="chipClass"
-                >{{ recipe.prepTime }}</q-chip
+              <q-chip color="secondary" square icon="schedule" class="chipClass"
+                >{{ recipe.prepTime }} min</q-chip
               >
             </div>
           </div>
@@ -34,7 +30,17 @@
 
         <div class="content-bottom flex column q-pa-md">
           <div class="q-mb-lg">
-            <q-item-label header class="text-bold">Zutaten</q-item-label>
+            <div class="flex row justify-between">
+              <q-item-label header class="text-bold">Zutaten</q-item-label>
+              <q-btn
+                size="sm"
+                flat
+                round
+                icon="receipt_long"
+                class="q-mr-sm"
+                @click="addIngredients(recipe)"
+              />
+            </div>
             <q-list bordered separator class="rounded-borders text-bold list">
               <q-item
                 v-for="ingredient in checkIngredientList"
@@ -82,52 +88,88 @@
 /**
  * imports
  */
-import { ref } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
+import { Notify } from "quasar";
 import PageHeaderBtnBack from "../../components/Page/PageHeaderBtnBack.vue";
 import { useStoreRecipes } from "src/stores/storeRecipes";
+import { useStoreShoppingList } from "src/stores/storeShoppingList";
 
 /**
  * store
  */
 const recipeStore = useStoreRecipes();
+const shoppingListStore = useStoreShoppingList();
 
 /**
  * routes
  */
 const route = useRoute();
-const recipe = recipeStore.recipes.find(
-  (recipe) => recipe.id === route.params.id
-);
-
-console.log(recipeStore.recipes);
-console.log(recipe);
 
 let tempIngredientCounter = 0;
-
 const checkIngredientList = ref([]);
 
-recipe.ingredients.forEach((ingredient) => {
-  checkIngredientList.value.push({
-    ingredient: ingredient,
-    checked: false,
-    id: tempIngredientCounter,
-  });
-  tempIngredientCounter++;
-});
-
 let tempStepCounter = 1;
-
 const checkStepList = ref([]);
 
-recipe.prepSteps.forEach((step) => {
-  checkStepList.value.push({
-    step: step,
-    checked: false,
-    id: tempStepCounter,
+const prepareRecipe = () => {
+  checkIngredientList.value = [];
+  recipe.ingredients.forEach((ingredient) => {
+    checkIngredientList.value.push({
+      ingredient: ingredient,
+      checked: false,
+      id: tempIngredientCounter,
+    });
+    tempIngredientCounter++;
   });
-  tempStepCounter++;
-});
+
+  checkStepList.value = [];
+  recipe.prepSteps.forEach((step) => {
+    checkStepList.value.push({
+      step: step,
+      checked: false,
+      id: tempStepCounter,
+    });
+    tempStepCounter++;
+  });
+};
+
+let recipe = recipeStore.recipes.find(
+  (recipe) => recipe.id === route.params.id
+);
+if (recipe !== undefined) {
+  prepareRecipe();
+}
+
+watch(
+  () => route.params.id,
+  (newValue) => {
+    recipe = recipeStore.recipes.find((recipe) => recipe.id === newValue);
+    if (recipe !== undefined) {
+      prepareRecipe();
+    }
+  }
+);
+
+const addIngredients = (recipe) => {
+  recipe.ingredients.forEach((ingredient) => {
+    console.log(ingredient);
+    shoppingListStore.addItem({
+      title: ingredient.name,
+      amount: ingredient.number,
+      size: ingredient.numberType,
+      note: "",
+      done: false,
+    });
+  });
+  Notify.create({
+    color: "green-4",
+    textColor: "white",
+    icon: "cloud_done",
+    position: "top",
+    message: `Zutaten wurden zur Einkaufsliste hinzugefügt!`,
+  });
+};
 </script>
 
 <style lang="scss">

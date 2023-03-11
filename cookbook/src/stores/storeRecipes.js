@@ -32,7 +32,7 @@ export const useStoreRecipes = defineStore("Rezepte", () => {
           id: doc.id,
           date: doc.data().date,
           title: doc.data().title,
-          sevings: doc.data().servings,
+          servings: doc.data().servings,
           prepTime: doc.data().prepTime,
           ingredients: doc.data().ingredients,
           prepSteps: doc.data().prepSteps,

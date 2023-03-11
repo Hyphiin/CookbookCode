@@ -26,17 +26,6 @@ import { onActivated, onDeactivated, ref, watch } from "vue";
 //nudge left class
 const hasActiveChildPage = ref(false);
 
-watch(
-  () => hasActiveChildPage.value,
-  (newValue) => {
-    console.log(newValue);
-  }
-);
-
-const test = () => {
-  console.log("hellooooooo");
-};
-
 onActivated(() => {
   hasActiveChildPage.value = true;
 });

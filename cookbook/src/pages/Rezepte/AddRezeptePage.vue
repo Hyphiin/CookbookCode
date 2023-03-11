@@ -1,7 +1,7 @@
 <template>
   <q-btn class="q-ma-md" to="/">Abbrechen</q-btn>
-  <div class="flex justify-center q-pa-md">
-    <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+  <div class="q-pa-md">
+    <q-form @submit="onSubmit" @reset="onReset">
       <q-input
         filled
         v-model="title"
@@ -194,7 +194,7 @@ const addIngredient = () => {
     });
     newIngredientName.value = "";
     newIngredientNumber.value = "";
-    newIngredientNumberType.value = "g";
+    newIngredientNumberType.value = "";
   } else {
     displayErrorIngredients.value = true;
   }
@@ -226,7 +226,7 @@ const deleteStep = (idx) => {
  */
 const displayErrorIngredients = ref(false);
 const displayErrorStep = ref(false);
-const options = ref(["g", "kg", "ml", "l", "Stk", "Pkg"]);
+const options = ref(["g", "kg", "ml", "l", "Stk", "Pkg", "Prise", "Dose"]);
 
 /**
  * save in store
@@ -306,3 +306,4 @@ onUnmounted(() => {
   recognition.stop();
 });
 </script>
+<style scoped></style>
