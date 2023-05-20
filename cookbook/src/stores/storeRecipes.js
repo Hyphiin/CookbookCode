@@ -11,7 +11,6 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db } from "/src/js/firebase";
-
 const recipesCollectionRef = collection(db, "Rezepte");
 const recipesCollectionQuery = query(
   recipesCollectionRef,
@@ -20,11 +19,13 @@ const recipesCollectionQuery = query(
 
 export const useStoreRecipes = defineStore("Rezepte", () => {
   const recipes = ref([]);
+  const recipesLoaded = ref(false);
 
   /**
    * actions
    */
   const getRecipes = async () => {
+    recipesLoaded.value = false;
     onSnapshot(recipesCollectionQuery, (querySnapshot) => {
       const tempRecipes = [];
       querySnapshot.forEach((doc) => {
@@ -40,6 +41,7 @@ export const useStoreRecipes = defineStore("Rezepte", () => {
         tempRecipes.push(recipe);
       });
       recipes.value = tempRecipes;
+      recipesLoaded.value = true;
     });
   };
 
@@ -67,6 +69,7 @@ export const useStoreRecipes = defineStore("Rezepte", () => {
 
   return {
     recipes,
+    recipesLoaded,
     getRecipes,
     addRecipe,
     deleteRecipe,

@@ -10,7 +10,7 @@
           filled
           bg-color="white"
           v-model="currentName"
-          placeholder="Hinzufügen"
+          label="Name"
           dense
           @keydown.enter.prevent="addItem"
         />
@@ -20,7 +20,7 @@
           number
           bg-color="white"
           v-model="currentNumber"
-          placeholder=""
+          label="Anzahl"
           dense
           @keydown.enter.prevent="addItem"
         />
@@ -31,7 +31,7 @@
           bg-color="white"
           v-model="currentSize"
           :options="sizeOptions"
-          placeholder=""
+          label="Einheit"
           @keydown.enter.prevent="addItem"
         />
         <q-btn
@@ -67,11 +67,17 @@
             </div>
           </q-item-section>
           <q-separator vertical inset />
-          <q-item-section v-if="!item.done" side @click.stop="editItem(item)">
-            <q-btn flat icon="edit" size="md" />
+          <q-item-section v-if="!item.done" side @click.stop="editItem = true">
+            <q-btn flat icon="edit" size="md" @click="editItemFunction(item)" />
           </q-item-section>
         </q-item>
       </q-list>
+      <div
+        v-if="shoppingList.length === 0"
+        class="flex justify-center q-mt-lg text-grey-6"
+      >
+        Noch keine Produkte vorhanden...
+      </div>
       <div class="column justify-end q-pa-xs" style="min-height: 100px">
         <q-label>Eingekauft:</q-label>
       </div>
@@ -98,37 +104,125 @@
               </div>
             </div>
           </q-item-section>
-          <q-separator vertical inset />
-          <q-item-section
-            v-if="!item.done"
-            side
-            @click.stop="editItemFunction(item, idx)"
-          >
-            <q-btn flat icon="edit" size="md" />
-          </q-item-section>
         </q-item>
       </q-list>
+      <div
+        v-if="deletedList.length === 0"
+        class="flex justify-center q-mt-lg text-grey-6"
+      >
+        Noch keine Produkte eingekauft...
+      </div>
       <q-page-sticky position="bottom-right" :offset="[18, 18]">
-        <q-btn fab icon="add" color="secondary" />
+        <q-btn fab icon="add" color="secondary" @click="addItemDialog = true" />
       </q-page-sticky>
       <q-dialog v-model="editItem" persistent>
         <q-card style="min-width: 350px">
           <q-card-section>
-            <div class="text-h6">Your address</div>
+            <div class="text-h6">Eintrag bearbeiten</div>
           </q-card-section>
 
           <q-card-section class="q-pt-none">
             <q-input
+              class="col-7 q-pr-sm"
+              filled
+              bg-color="white"
+              v-model="currentEditName"
+              placeholder="Hinzufügen"
               dense
-              v-model="address"
-              autofocus
-              @keyup.enter="editItem = false"
+              @keydown.enter.prevent="editItemFunction"
+            />
+            <q-input
+              class="col-7 q-pr-sm"
+              filled
+              bg-color="white"
+              v-model="currentEditNote"
+              label="Notiz"
+              dense
+              @keydown.enter.prevent="editItemFunction"
+            />
+            <q-input
+              class="col-2 q-pr-sm"
+              filled
+              number
+              bg-color="white"
+              v-model="currentEditNumber"
+              placeholder=""
+              dense
+              @keydown.enter.prevent="editItemFunction"
+            />
+            <q-select
+              class="col-2 q-pr-sm"
+              filled
+              dense
+              bg-color="white"
+              v-model="currentEditSize"
+              :options="sizeOptions"
+              placeholder=""
+              @keydown.enter.prevent="editItemFunction"
             />
           </q-card-section>
 
           <q-card-actions align="right" class="text-primary">
-            <q-btn flat label="Cancel" v-close-popup />
-            <q-btn flat label="Add address" v-close-popup />
+            <q-btn flat label="Abbrechen" v-close-popup />
+            <q-btn
+              flat
+              label="Speichern"
+              v-close-popup
+              @click="editItemFunction()"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+      <q-dialog v-model="addItemDialog" persistent>
+        <q-card style="min-width: 350px">
+          <q-card-section>
+            <div class="text-h6">Eintrag hinzufügen</div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-none">
+            <q-input
+              class="col-7 q-pr-sm"
+              filled
+              bg-color="white"
+              v-model="currentName"
+              label="Name"
+              dense
+              @keydown.enter.prevent="addItem"
+            />
+            <q-input
+              class="col-7 q-pr-sm"
+              filled
+              bg-color="white"
+              v-model="currentNote"
+              label="Notiz"
+              dense
+              @keydown.enter.prevent="addItem"
+            />
+            <q-input
+              class="col-2 q-pr-sm"
+              filled
+              number
+              bg-color="white"
+              v-model="currentNumber"
+              label="Anzahl"
+              dense
+              @keydown.enter.prevent="addItem"
+            />
+            <q-select
+              class="col-2 q-pr-sm"
+              filled
+              dense
+              bg-color="white"
+              v-model="currentSize"
+              :options="sizeOptions"
+              label="Einheit"
+              @keydown.enter.prevent="addItem"
+            />
+          </q-card-section>
+
+          <q-card-actions align="right" class="text-primary">
+            <q-btn flat label="Abbrechen" v-close-popup />
+            <q-btn flat label="Speichern" v-close-popup @click="addItem" />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -139,9 +233,14 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useStoreShoppingList } from "src/stores/storeShoppingList";
+import { Loading } from "quasar";
 /**
  * store
  */
+Loading.show({
+  message: "Items are Loading. Hang on...",
+});
+
 const shoppingListStore = useStoreShoppingList();
 
 onMounted(() => {
@@ -164,13 +263,18 @@ watch(
   }
 );
 
+watch(
+  () => shoppingListStore.itemsLoaded,
+  (newValue) => {
+    if (newValue === true) {
+      Loading.hide();
+    }
+  }
+);
+
 /**
  * list
  */
-const currentName = ref("");
-const currentNumber = ref(null);
-const currentSize = ref(null);
-
 const sizeOptions = ["g", "kg", "ml", "l", , "Pkg", "Stk"];
 
 const shoppingList = ref([]);
@@ -180,34 +284,44 @@ const changeList = (item) => {
   shoppingListStore.setItemDone(item.id, !item.done);
 };
 
-const editItem = ref(false);
-const editItemFunction = (item, idx) => {
-  editItem.value = true;
-  console.log(item, idx);
-};
+const currentName = ref("");
+const currentNumber = ref(null);
+const currentSize = ref(null);
+const currentNote = ref("");
 
+const addItemDialog = ref(false);
 const addItem = () => {
   if (currentName.value !== "") {
-    if (currentName.value.includes(" ")) {
-      let tempName = [];
-      tempName = currentName.value.split(" ");
-      let notesString = "";
-      for (let i = 1; i < tempName.length; i++) {
-        notesString += tempName[i];
+    if (currentNote.value === "") {
+      if (currentName.value.includes(" ")) {
+        let tempName = [];
+        tempName = currentName.value.split(" ");
+        let notesString = "";
+        for (let i = 1; i < tempName.length; i++) {
+          notesString += tempName[i] + " ";
+        }
+        shoppingListStore.addItem({
+          title: tempName[0],
+          amount: parseInt(currentNumber.value),
+          size: currentSize.value,
+          note: notesString,
+          done: false,
+        });
+      } else {
+        shoppingListStore.addItem({
+          title: currentName.value,
+          amount: parseInt(currentNumber.value),
+          size: currentSize.value,
+          note: "",
+          done: false,
+        });
       }
-      shoppingListStore.addItem({
-        title: tempName[0],
-        amount: parseInt(currentNumber.value),
-        size: currentSize.value,
-        note: notesString,
-        done: false,
-      });
     } else {
       shoppingListStore.addItem({
         title: currentName.value,
         amount: parseInt(currentNumber.value),
         size: currentSize.value,
-        note: "",
+        note: currentNote.value,
         done: false,
       });
     }
@@ -215,5 +329,35 @@ const addItem = () => {
   currentName.value = "";
   currentNumber.value = null;
   currentSize.value = "";
+  currentNote.value = "";
+};
+
+const editItem = ref(false);
+const currentEditItemId = ref(null);
+
+const currentEditName = ref("");
+const currentEditNumber = ref(null);
+const currentEditSize = ref(null);
+const currentEditNote = ref("");
+
+const editItemFunction = (item) => {
+  console.log(item);
+  if (item !== undefined) {
+    editItem.value = true;
+    currentEditItemId.value = item.id;
+    currentEditName.value = item.title;
+    currentEditNumber.value = item.amount;
+    currentEditSize.value = item.size;
+    currentEditNote.value = item.note;
+  } else {
+    shoppingListStore.editItem(currentEditItemId.value, {
+      title: currentEditName.value,
+      amount: parseInt(currentEditNumber.value),
+      size: currentEditSize.value,
+      note: currentEditNote.value,
+      done: false,
+    });
+    editItem.value = false;
+  }
 };
 </script>

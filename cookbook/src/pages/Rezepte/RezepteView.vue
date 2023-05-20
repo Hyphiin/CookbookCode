@@ -79,13 +79,18 @@
 </template>
 
 <script setup>
+import { Loading } from "quasar";
 import { useStoreRecipes } from "src/stores/storeRecipes";
 import { useStoreShoppingList } from "src/stores/storeShoppingList";
-import { ref, onMounted } from "vue";
+import { ref, watch } from "vue";
 
 /**
  * store
  */
+Loading.show({
+  message: "Recipes are Loading. Hang on...",
+});
+
 const recipeStore = useStoreRecipes();
 const shoppingListStore = useStoreShoppingList();
 
@@ -101,6 +106,15 @@ const updateProxy = () => {
 const save = () => {
   date.value = proxyDate.value;
 };
+
+watch(
+  () => recipeStore.recipesLoaded,
+  (newValue) => {
+    if (newValue === true) {
+      Loading.hide();
+    }
+  }
+);
 
 const addIngredients = (recipe) => {
   recipe.ingredients.forEach((ingredient) => {

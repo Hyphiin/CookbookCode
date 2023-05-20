@@ -21,13 +21,16 @@ const shoppingListCollectionRef = collection(db, "Einkaufsliste");
 
 export const useStoreShoppingList = defineStore("Einkaufsliste", () => {
   const shoppingList = ref([]);
+  const itemsLoaded = ref(false);
 
   /**
    * actions
    */
   const getList = async () => {
+    itemsLoaded.value = false;
     onSnapshot(shoppingListCollectionRef, (querySnapshot) => {
       const tempList = [];
+
       querySnapshot.forEach((doc) => {
         let listItem = {
           id: doc.id,
@@ -39,8 +42,8 @@ export const useStoreShoppingList = defineStore("Einkaufsliste", () => {
         };
         tempList.push(listItem);
       });
-      console.log("STORE: ", tempList);
       shoppingList.value = tempList;
+      itemsLoaded.value = true;
     });
   };
 
@@ -64,14 +67,30 @@ export const useStoreShoppingList = defineStore("Einkaufsliste", () => {
     await batch.commit();
   };
 
+  const editItem = async (idToChange, newItemContent) => {
+    const batch = writeBatch(db);
+    const tempRef = doc(db, "Einkaufsliste", idToChange);
+    batch.update(tempRef, {
+      title: newItemContent.title,
+      amount: newItemContent.amount,
+      size: newItemContent.size,
+      note: newItemContent.note,
+      done: newItemContent.done,
+    });
+
+    await batch.commit();
+  };
+
   /**
    * getters
    */
 
   return {
     shoppingList,
+    itemsLoaded,
     getList,
     addItem,
     setItemDone,
+    editItem,
   };
 });
