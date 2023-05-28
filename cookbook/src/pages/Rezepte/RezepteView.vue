@@ -2,14 +2,17 @@
   <page-view>
     <page-header>
       <template v-slot:title>Rezepte</template>
+      <template #buttons-right>
+        <q-btn>Logout</q-btn>
+      </template>
     </page-header>
     <page-body>
-      <div class="recipes-body q-pa-md">
+      <div class="recipes-body q-pa-sm">
         <div v-for="recipe of recipeStore.recipes" :key="recipe.title">
-          <q-card class="recipe-card">
+          <q-card class="recipe-card my-card">
             <router-link :to="`/rezepteDetail/${recipe.id}`">
               <q-img src="https://cdn.quasar.dev/img/chicken-salad.jpg">
-                <div class="text-h6 absolute-bottom text-center">
+                <div class="text-subtitle1 absolute-bottom text-center">
                   {{ recipe.title }}
                 </div>
               </q-img>
@@ -82,17 +85,19 @@
 import { Loading } from "quasar";
 import { useStoreRecipes } from "src/stores/storeRecipes";
 import { useStoreShoppingList } from "src/stores/storeShoppingList";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 
 /**
  * store
  */
-Loading.show({
-  message: "Recipes are Loading. Hang on...",
-});
-
 const recipeStore = useStoreRecipes();
 const shoppingListStore = useStoreShoppingList();
+
+onMounted(() => {
+  Loading.show({
+    message: "Recipes are Loading. Hang on...",
+  });
+});
 
 const date = ref("2019/03/01");
 const proxyDate = ref("2019/03/01");
@@ -129,3 +134,12 @@ const addIngredients = (recipe) => {
   });
 };
 </script>
+
+<style scoped>
+.my-card {
+  margin: 4px 3px;
+  min-width: 137px;
+  width: 100%;
+  max-width: 137px;
+}
+</style>

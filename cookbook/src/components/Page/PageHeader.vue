@@ -10,6 +10,8 @@
       >
         <slot name="title" />
       </div>
+
+      <slot name="buttons-right" />
     </div>
   </header>
 </template>

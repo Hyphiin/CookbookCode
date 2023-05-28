@@ -2,6 +2,7 @@
   <page-view>
     <page-header>
       <template #title>Einkaufsliste</template>
+
     </page-header>
     <page-body>
       <div class="row q-pa-sm bg-primary">

@@ -24,6 +24,10 @@ const routes = [
         path: "/calendar",
         component: () => import("src/pages/Calendar/CalendarView.vue"),
       },
+      {
+        path: "/auth",
+        component: () => import("src/pages/AuthView.vue"),
+      },
     ],
   },
 
